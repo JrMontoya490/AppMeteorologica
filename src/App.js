@@ -11,22 +11,44 @@ const unsplashApi = {
   base: "https://api.unsplash.com/search/photos",
 };
 
+// Lista de ciudades
+const cities = [
+  "New York",
+  "Paris",
+  "London",
+  "Tokyo",
+  "Sydney",
+  "Moscow",
+  "Berlin",
+  "Madrid",
+  "Buenos Aires",
+  "Toronto",
+];
+
 function App() {
   const [search, setSearch] = useState("");
   const [weather, setWeather] = useState({});
   const [backgroundImage, setBackgroundImage] = useState("");  // Para la imagen de fondo
 
+  // Función para buscar el clima y la imagen de la ciudad ingresada
   const searchPressed = () => {
-    // Llamada a la API del clima
     fetch(`${weatherApi.base}weather?q=${search}&units=metric&APPID=${weatherApi.key}`)
       .then((res) => res.json())
       .then((result) => {
         setWeather(result);
         if (result.name) {
-          fetchImage(result.name);  // Llamar a la API de Unsplash
+          fetchImage(result.name);
         }
       });
   };
+
+  // Función para buscar el clima y la imagen de una ciudad aleatoria
+  const searchRandomCity = () => {
+    const randomCity = cities[Math.floor(Math.random() * cities.length)];
+    setSearch(randomCity);
+    searchPressed(); 
+  };
+
 
   const fetchImage = (city) => {
     fetch(`${unsplashApi.base}?query=${city}&client_id=${unsplashApi.key}&per_page=1`)
@@ -46,6 +68,7 @@ function App() {
           <input
             type="text"
             placeholder="Ingresar Ciudad...."
+            value={search}  // Mantener el valor de la ciudad seleccionada
             onChange={(e) => setSearch(e.target.value)}
             className="search-input"
           />
@@ -54,9 +77,15 @@ function App() {
           </button>
         </div>
 
+        <div>
+          <button onClick={searchRandomCity} className="random-button">
+            Ciudad Aleatoria
+          </button>
+        </div>
+
         {typeof weather.main !== "undefined" ? (
           <div className="weather-info">
-            <h2>{weather.name}</h2>
+            <h2>{weather.name}, {weather.sys.country}</h2>  {/* Mostrar ciudad y país */}
             <p className="temp">{weather.main.temp}°C</p>
             <p className="condition">{weather.weather[0].main}</p>
             <p className="description">({weather.weather[0].description})</p>
@@ -70,3 +99,4 @@ function App() {
 }
 
 export default App;
+
